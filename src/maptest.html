@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>mbtiles server map test</title>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+</head>
+<body>
+    <div id="map" style="width: 600px; height: 400px"></div>
+
+    <script>
+        var map = L.map('map').setView([35.6895, 139.6917], 14); // adjust to appropriate area your map covers.
+        L.tileLayer(
+            'http://localhost:8005/{z}/{x}/{y}.png', { // update to use the address:port where items are served.
+            attribution: '&copy; Attribution Here',
+            maxZoom: 18,
+            tms: true, // note mbtiles are in TMS, this must be set to 'true'.
+            }).addTo(map);
+    </script>
+</body>
+</html>

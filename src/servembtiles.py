@@ -74,7 +74,6 @@ class MBTilesApplication:
             setattr(self, name.lower(), int(value))
 
     def __call__(self, environ, start_response):
-        response_headers = []
         if environ['REQUEST_METHOD'] == 'GET':
             uri_field_count = len(environ['PATH_INFO'].split('/'))
             base_uri = shift_path_info(environ)
@@ -85,11 +84,18 @@ class MBTilesApplication:
                 with sqlite3.connect(self.mbtiles_filepath) as connection:
                     cursor = connection.cursor()
                     cursor.execute(query)
-                    metadata_result = cursor.fetchone()
-                status = '200 OK'
-                response_headers.append(('Content-type', 'application/json'))
-                start_response(status, response_headers)
-                return [json.dumps(metadata_result)]
+                    metadata_results = cursor.fetchall()
+                if metadata_results:
+                    status = '200 OK'
+                    response_headers = [('Content-type', 'application/json')]
+                    start_response(status, response_headers)
+                    json_result = json.dumps(metadata_results)
+                    return [json_result.encode("utf8"),]
+                else:
+                    status = '404 NOT FOUND'
+                    response_headers = [('Content-type', 'text/plain')]
+                    start_response(status, response_headers)
+                    return ['"metadata" not found in configured .mbtiles file!', ]
 
             # handle tile request
             elif uri_field_count >= 3:  # expect:  zoom, x & y
@@ -122,7 +128,7 @@ class MBTilesApplication:
                 if tile_results:
                     tile_result = tile_results[0]
                     status = '200 OK'
-                    response_headers.append(('Content-type', self.tile_content_type))
+                    response_headers = [('Content-type', self.tile_content_type)]
                     start_response(status, response_headers)
                     return [tile_result,]
                 else:
@@ -134,7 +140,7 @@ class MBTilesApplication:
         status = "400 Bad Request"
         response_headers = [('Content-type', 'text/plain')]
         start_response(status, response_headers)
-        return ['request URI not in expected: ("metadata", "/zoom/x/y.png")']
+        return ['request URI not in expected: ("metadata", "/z/x/y.png")', ]
 
 
 if __name__ == '__main__':

@@ -13,16 +13,26 @@ import mimetypes
 import logging
 from wsgiref.util import shift_path_info
 
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
-MBTILES_ABSFILEPATH = os.environ.get('MBTILES_ABSFILEPATH')  # or set this statically
-MBTILES_TILE_EXT = os.environ.get("MBTILES_TILE_EXT", '.png')
+try:
+    from settings import MBTILES_ABSPATH, MBTILES_TILE_EXT
+except ImportError:
+    logger.warn("settings.py not set, can't be run via apache!")
+    MBTILES_ABSPATH = None
+    MBTILES_TILE_EXT = '.png'
+
+SUPPORTED_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg")
 
 class MBTilesFileNotFound(Exception):
     pass
 
 class UnsupportedMBTilesVersion(Exception):
+    pass
+
+class InvalidImageExtension(Exception):
     pass
 
 class MBTilesApplication:
@@ -34,8 +44,11 @@ class MBTilesApplication:
     """
 
     def __init__(self, mbtiles_filepath, tile_image_ext='.png'):
-        if not os.path.exists(mbtiles_filepath):
+        if mbtiles_filepath is None or not os.path.exists(mbtiles_filepath):
             raise MBTilesFileNotFound(mbtiles_filepath)
+
+        if tile_image_ext not in SUPPORTED_IMAGE_EXTENSIONS:
+            raise InvalidImageExtension("{} not in {}!".format(tile_image_ext, SUPPORTED_IMAGE_EXTENSIONS))
 
         self.mbtiles_filepath = mbtiles_filepath
         self.tile_image_ext = tile_image_ext
@@ -158,9 +171,9 @@ if __name__ == '__main__':
                         default='localhost',
                         help='Test address to serve on [DEFAULT="localhost"]')
     parser.add_argument('-f', '--filepath',
-                        default=MBTILES_ABSFILEPATH,
+                        default=MBTILES_ABSPATH,
                         required=True,
-                        help="mbtiles filepath [DEFAULT={}]\n(Defaults to enviornment variable, 'MBTILES_ABSFILEPATH')".format(MBTILES_ABSFILEPATH))
+                        help="mbtiles filepath [DEFAULT={}]\n(Defaults to enviornment variable, 'MBTILES_ABSFILEPATH')".format(MBTILES_ABSPATH))
     parser.add_argument('-e', '--ext',
                         default=MBTILES_TILE_EXT,
                         help="mbtiles image file extention [DEFAULT={}]\n(Defaults to enviornment variable, 'MBTILES_TILE_EXT')".format(MBTILES_TILE_EXT))
@@ -189,3 +202,5 @@ if __name__ == '__main__':
     else:
         logger.warn("'--serve' option not given!")
         logger.warn("\tRun with the '--serve' option to serve tiles with the test server.")
+else:
+    application = MBTilesApplication(mbtiles_filepath=MBTILES_ABSPATH, tile_image_ext=MBTILES_TILE_EXT)

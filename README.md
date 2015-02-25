@@ -90,4 +90,50 @@ Once added run `sudo a2siteen servembtiles.conf` and restart apache via `sudo se
 
 
 
+##Sample Nginx Proxy Configuration
 
+###Update http config in `/etc/nginx/nginx.conf` adding the following above the "Virtual Host Configs":
+
+        ##
+        # Caching-Proxy Configs
+        ##
+        proxy_cache_path /var/lib/nginx/cache levels=1:2 keys_zone=mbtilescache:8m max_size=50m;
+        proxy_cache_key "$request_uri";
+        proxy_cache_valid 200 302 30m;
+        proxy_cache_valid 404 1m;
+
+###Create `/etc/nginx/sites-available/servembtiles.conf`
+
+```
+# sample servembtiles for proxy server
+server {
+    # Change if using another port
+    # --> NOTE:  Apache may already be listening on 80
+    listen 80 default_server;
+    listen [::]:80 default_server ipv6only=on;
+
+    # Make site accessible from http://localhost/
+    server_name <IP of Machine>; # IP of machine we're serving from
+
+    location / {
+        proxy_cache mbtilescache;
+        #proxy_cache_bypass $http_cache_control;  # not clear how this affects the mbtiles serving use-case...
+        add_header X-Proxy-Cache $upstream_cache_status;
+
+        # servembtils.py port (configured in apache2)
+        proxy_pass http://localhost:8005;
+    }
+}
+```
+
+
+
+###Create the cache directory
+
+Create the cache directory defined in `/etc/nginx/nginx.conf`.
+
+```
+$ sudo mkdir -p /var/lib/nginx/cache
+$ sudo chown www-data /var/lib/nginx/cache
+$ sudo chmod 700 /var/lib/nginx/cache
+```

@@ -142,6 +142,11 @@ server {
 }
 ```
 
+The 'X-Proxy-Cache' header is added and can be used to confirm if the nginx cache is HIT, MISS or BYPASS.
+
+Refer to the following for details:
+https://serversforhackers.com/nginx-caching/
+
 
 
 ###Create the cache directory

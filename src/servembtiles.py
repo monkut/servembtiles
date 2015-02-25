@@ -115,13 +115,13 @@ class MBTilesApplication:
                 try:
                     zoom = int(base_uri)
                     if all((self.minzoom, self.maxzoom)) and not (self.minzoom <= zoom <= self.maxzoom):
-                        status = "400 Bad Request"
+                        status = "404 Not Found"
                         response_headers = [('Content-type', 'text/plain')]
                         start_response(status, response_headers)
-                        return ['zoomlevel({}) not in valid range minzoom({}) maxzoom({}) PATH_INFO: {}'.format(zoom,
-                                                                                                                self.minzoom,
-                                                                                                                self.maxzoom,
-                                                                                                                environ['PATH_INFO'])]
+                        return ['Requested zoomlevel({}) Not Available! Valid range minzoom({}) maxzoom({}) PATH_INFO: {}'.format(zoom,
+                                                                                                                                   self.minzoom,
+                                                                                                                                   self.maxzoom,
+                                                                                                                                   environ['PATH_INFO'])]
                     x = int(shift_path_info(environ))
                     y, ext = shift_path_info(environ).split('.')
                     y = int(y)

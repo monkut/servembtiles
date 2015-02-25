@@ -92,6 +92,22 @@ Once added run `sudo a2siteen servembtiles.conf` and restart apache via `sudo se
 
 ##Sample Nginx Proxy Configuration
 
+Prepared using:
+nginx version: nginx/1.4.6 (Ubuntu)
+On ubuntu 14.04
+
+Referenced:
+https://www.digitalocean.com/community/tutorials/understanding-nginx-http-proxying-load-balancing-buffering-and-caching
+
+###Nginx Installation
+
+```
+$ sudo apt-get update
+$ sudo apt-get install nginx
+```
+
+After install nginx configuration available at, `/etc/nginx`.
+
 ###Update http config in `/etc/nginx/nginx.conf` adding the following above the "Virtual Host Configs":
 
         ##

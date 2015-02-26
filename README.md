@@ -11,6 +11,7 @@ Requests are expected to follow the TMS addressing scheme. (For example, '/z/x/y
 See (http://www.maptiler.org/google-maps-coordinates-tile-bounds-projection/) for details.
 
 In addition, the `/metadata/` URL is available to view the .mbtiles file's metadata table in `json` format.
+(And if the included sample configurations and `index.html` are used, `/index.html` provides a test map to confirm that your tiles are being served from the defined `.mbtiles` file)
 
 This includes a simple test server for verification purposes.
 Ideally, this should probably be served via [Nginx](http://nginx.com/resources/glossary/reverse-proxy-server/) or apache2, with reverse proxy caching.

@@ -43,6 +43,8 @@ It appears to have more features though, so if this doesn't meet your needs you 
 Configured for Ubuntu 14.04:
     Server version: Apache/2.4.7 (Ubuntu)
 
+Note: Sample available at `conf/servembtiles.apache2.conf`.
+
 Edit the `/etc/apache2/ports.conf` adding the VirtualHost port number to the `ports.conf` file (for example, 'Listen 8005').
 This file goes in the `sites-available` apache2 directory:
 
@@ -99,6 +101,10 @@ On ubuntu 14.04
 Referenced:
 https://www.digitalocean.com/community/tutorials/understanding-nginx-http-proxying-load-balancing-buffering-and-caching
 
+See `conf/servembtiles.nginx.conf` for sample.
+
+NOTE: Even if this sample is used, `/etc/nginx/nginx.conf` needs to be updated, see below.
+
 ###Nginx Installation
 
 ```
@@ -121,7 +127,7 @@ After install nginx configuration available at, `/etc/nginx`.
 ###Create `/etc/nginx/sites-available/servembtiles.conf`
 
 ```
-# sample servembtiles for proxy server
+# sample servembtiles for proxy server caching
 server {
     # Change if using another port
     # --> NOTE:  Apache may already be listening on 80

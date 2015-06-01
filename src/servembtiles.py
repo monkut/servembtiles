@@ -129,7 +129,7 @@ class MBTilesApplication:
                     status = "400 Bad Request"
                     response_headers = [('Content-type', 'text/plain')]
                     start_response(status, response_headers)
-                    return ['Unable to parse PATH_INFO({}), expecting "z/x/y.(png|jpg)"'.format(environ['PATH_INFO']), e.args()]
+                    return ['Unable to parse PATH_INFO({}), expecting "z/x/y.(png|jpg)"'.format(environ['PATH_INFO']), e.args]
 
                 query = 'SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=?;'
                 values = (zoom, x, y)

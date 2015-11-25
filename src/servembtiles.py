@@ -26,14 +26,18 @@ except ImportError:
 
 SUPPORTED_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg")
 
+
 class MBTilesFileNotFound(Exception):
     pass
+
 
 class UnsupportedMBTilesVersion(Exception):
     pass
 
+
 class InvalidImageExtension(Exception):
     pass
+
 
 class MBTilesApplication:
     """
@@ -106,9 +110,9 @@ class MBTilesApplication:
                     return [json_result.encode("utf8"),]
                 else:
                     status = '404 NOT FOUND'
-                    response_headers = [('Content-type', 'text/plain')]
+                    response_headers = [('Content-type', 'text/plain; charset=utf-8')]
                     start_response(status, response_headers)
-                    return ['"metadata" not found in configured .mbtiles file!', ]
+                    return ['"metadata" not found in configured .mbtiles file!'.encode('utf8'), ]
 
             # handle tile request
             elif uri_field_count >= 3:  # expect:  zoom, x & y
@@ -116,20 +120,20 @@ class MBTilesApplication:
                     zoom = int(base_uri)
                     if all((self.minzoom, self.maxzoom)) and not (self.minzoom <= zoom <= self.maxzoom):
                         status = "404 Not Found"
-                        response_headers = [('Content-type', 'text/plain')]
+                        response_headers = [('Content-type', 'text/plain; charset=utf-8')]
                         start_response(status, response_headers)
                         return ['Requested zoomlevel({}) Not Available! Valid range minzoom({}) maxzoom({}) PATH_INFO: {}'.format(zoom,
                                                                                                                                    self.minzoom,
                                                                                                                                    self.maxzoom,
-                                                                                                                                   environ['PATH_INFO'])]
+                                                                                                                                   environ['PATH_INFO']).encode('utf8')]
                     x = int(shift_path_info(environ))
                     y, ext = shift_path_info(environ).split('.')
                     y = int(y)
                 except ValueError as e:
                     status = "400 Bad Request"
-                    response_headers = [('Content-type', 'text/plain')]
+                    response_headers = [('Content-type', 'text/plain; charset=utf-8')]
                     start_response(status, response_headers)
-                    return ['Unable to parse PATH_INFO({}), expecting "z/x/y.(png|jpg)"'.format(environ['PATH_INFO']), e.args]
+                    return ['Unable to parse PATH_INFO({}), expecting "z/x/y.(png|jpg)"'.format(environ['PATH_INFO']).encode('utf8'), ','.join(i for i in e.args).encode('utf8')]
 
                 query = 'SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=?;'
                 values = (zoom, x, y)
@@ -146,14 +150,14 @@ class MBTilesApplication:
                     return [tile_result,]
                 else:
                     status = '404 NOT FOUND'
-                    response_headers = [('Content-type', 'text/plain')]
+                    response_headers = [('Content-type', 'text/plain; charset=utf-8')]
                     start_response(status, response_headers)
-                    return ['No data found for request location: {}'.format(environ['PATH_INFO'])]
+                    return ['No data found for request location: {}'.format(environ['PATH_INFO']).encode('utf8')]
 
         status = "400 Bad Request"
-        response_headers = [('Content-type', 'text/plain')]
+        response_headers = [('Content-type', 'text/plain; charset=utf-8')]
         start_response(status, response_headers)
-        return ['request URI not in expected: ("metadata", "/z/x/y.png")', ]
+        return ['request URI not in expected: ("metadata", "/z/x/y.png")'.encode('utf8'), ]
 
 
 if __name__ == '__main__':

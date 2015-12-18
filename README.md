@@ -32,13 +32,6 @@ $ python3 servembtiles.py --serve --filepath exports/OSMBright.mbtiles
 
 None!
 
-##Why?
-
-I was looking for a simple mbtiles python server implementation and I've been trying to move more and more of my work to python3.
-
-I found [django-mbtiles](https://pypi.python.org/pypi/django-mbtiles/1.3) which seems to do the same, but not with python3 and it requires django.
-It appears to have more features though, so if this doesn't meet your needs you may want to take a look at it.
-
 ##Sample servembtiles.conf apache2 configuration file
 
 Configured for Ubuntu 14.04:

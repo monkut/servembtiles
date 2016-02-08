@@ -1,4 +1,4 @@
-# servembtiles (MBTiles Tile Map Server) Application Installation
+# servembtiles (MBTiles Tile Map Server)
 
 'servembtiles.py' is a pure python3 wsgi application for serving [MBTiles](https://github.com/mapbox/mbtiles-spec).
 MBTiles can be exported from [Tilemill](https://www.mapbox.com/tilemill/).  (If you do web-maps you should checkout tilemill)

@@ -1,5 +1,4 @@
-servembtiles.py
-================
+# servembtiles (MBTiles Tile Map Server) Application Installation
 
 'servembtiles.py' is a pure python3 wsgi application for serving [MBTiles](https://github.com/mapbox/mbtiles-spec).
 MBTiles can be exported from [Tilemill](https://www.mapbox.com/tilemill/).  (If you do web-maps you should checkout tilemill)
@@ -7,14 +6,16 @@ MBTiles can be exported from [Tilemill](https://www.mapbox.com/tilemill/).  (If 
 The application's MBTiles filepath can be defined in the 'settings.py' variable, "MBTILES_ABSPATH".
 The application's tile image file extension can also be set via the 'settings.py' variable, "MBTILES_TILE_EXT".
 
-Requests are expected to follow the TMS addressing scheme. (For example, '/z/x/y.png')
+By default requests are expected to follow the TMS addressing scheme. (For example, '/z/x/y.png')
 See (http://www.maptiler.org/google-maps-coordinates-tile-bounds-projection/) for details.
+THE Google maps XYZ scheme is supported by setting the *USE_OSGEO_TMS_TILE_ADDRESSING* value to *False* in the 'settings.py' file.
 
 In addition, the `/metadata/` URL is available to view the .mbtiles file's metadata table in `json` format.
 (And if the included sample configurations and `index.html` are used, `/index.html` provides a test map to confirm that your tiles are being served from the defined `.mbtiles` file)
 
 This includes a simple test server for verification purposes.
-Ideally, this should probably be served via [Nginx](http://nginx.com/resources/glossary/reverse-proxy-server/) or apache2, with reverse proxy caching.
+The Installation section below describes how to configure this to serve tiles with reverse-proxy caching using Nginx,
+with the configuration files included in this project.
 
 ##Test Server Usage
 
@@ -28,106 +29,85 @@ $ python3 servembtiles.py --serve --filepath exports/OSMBright.mbtiles
 2015-02-24 16:27:45,474 - servembtiles - INFO - PORT    : 8005
 ```
 
-##Dependencies
 
-None!
+## Requirements
 
-## Setting up servembtiles with uWSGI & nginx
+- Python 3.5.X
 
-Configured for Ubuntu 14.04:
-    
-1. Create venv for servembtiles
+## settings.py
+
+The 'settings.py' file contains the following values:
+
+    * MBTILES_ABSPATH - The absolute path to the mbtiles file to serve
+
+    * MBTILES_TILE_EXT - The image extension to use (".png", ".jpg", ".jpeg")
+
+    * USE_OSGEO_TMS_TILE_ADDRESSING - True (default) set to False to use Google XYZ addressing.
+
+## Installation
+
+This section describes the initial application installation method on ubuntu 14.04.
+
+1. Create 'venv' on target server:
+
+    ```console
+    $ cd /var/www
+    $ sudo mkdir servembtiles
+    $ sudo chmod 777 servembtiles
+    $ python3 -m venv servembtiles
     ```
-    sudo mkdir -m 777 /var/www/servembtiles
-    python3 -m venv /var/www/servembtiles
-    mkdir /var/www/servembtiles/repo
-    # activate venv
-    cd /var/www/servembtiles
-    source bin/activate
-    ```
-    
-2. Clone servembtiles project
-    ```
-    git clone https://github.com/monkut/servembtiles.git repo
-    chmod 777 /var/www/servembtiles/repo
+
+2. Clone 'servembtiles' repository:
+
+    ```console
+    $ cd /var/www/servembtiles
+    $ git clone GIT_REPOSTIORY_URL repo
     ```
 
-3.  Install uwsgi (application server)
+3. Activate *venv* and install requirements:
+
+    ```console
+    $ source bin/activate
+    (servembtiles)$ cd repo
+    (servembtiles)$ pip install -r requirements.txt
     ```
-    cd /var/www/servembtiles/repo
-    pip install -r requirements.txt
+
+4. Symlink the 'servembtiles_nginx.conf' to */etc/nginx/sites-enabled/*
+
+    ```console
+    $ sudo ln -s /var/www/servembtiles/repo/conf/servembtiles_cache.conf /etc/nginx/sites-enabled/
+    $ sudo ln -s /var/www/servembtiles/repo/conf/servembtiles_nginx.conf /etc/nginx/sites-enabled/
+    $ sudo ln -s /var/www/servembtiles/repo/conf/servembtiles_cache_nginx.conf /etc/nginx/sites-enabled/
     ```
-    
-
-##Sample Nginx Proxy Configuration
-
-Prepared using:
-nginx version: nginx/1.4.6 (Ubuntu)
-On ubuntu 14.04
-
-Referenced:
-https://www.digitalocean.com/community/tutorials/understanding-nginx-http-proxying-load-balancing-buffering-and-caching
-
-See `conf/servembtiles.nginx.conf` for sample.
-
-NOTE: Even if this sample is used, `/etc/nginx/nginx.conf` needs to be updated, see below.
-
-###Nginx Installation
-
-```
-$ sudo apt-get update
-$ sudo apt-get install nginx
-```
-
-After install nginx configuration available at, `/etc/nginx`.
-
-###Update http config in `/etc/nginx/nginx.conf` adding the following above the "Virtual Host Configs":
-
-        ##
-        # Caching-Proxy Configs
-        ##
-        proxy_cache_path /var/lib/nginx/cache levels=1:2 keys_zone=mbtilescache:8m max_size=50m;
-        proxy_cache_key "$request_uri";
-        proxy_cache_valid 200 302 30m;
-        proxy_cache_valid 404 1m;
-
-###Create `/etc/nginx/sites-available/servembtiles.conf`
-
-```
-# sample servembtiles for proxy server caching
-server {
-    # Change if using another port
-    # --> NOTE:  Apache may already be listening on 80
-    listen 80 default_server;
-    listen [::]:80 default_server ipv6only=on;
-
-    # Make site accessible from http://localhost/
-    server_name <IP of Machine>; # IP of machine we're serving from
-
-    location / {
-        proxy_cache mbtilescache;
-        #proxy_cache_bypass $http_cache_control;  # not clear how this affects the mbtiles serving use-case...
-        add_header X-Proxy-Cache $upstream_cache_status;
-
-        # servembtils.py port (configured in apache2)
-        proxy_pass http://localhost:8005;
-    }
-}
-```
-
-The 'X-Proxy-Cache' header is added and can be used to confirm if the nginx cache is HIT, MISS or BYPASS.
-
-Refer to the following for details:
-https://serversforhackers.com/nginx-caching/
 
 
+5. To allow the socket to be created, chmod on servembtiles/repo directory:
 
-###Create the cache directory
+    ```console
+    sudo chmod 777 /var/www/servembtiles/repo
+    ```
 
-Create the cache directory defined in `/etc/nginx/nginx.conf`.
+6. Copy upstart configuration file, *servembtiles-uwsgi.conf* to /etc/init
 
-```
-$ sudo mkdir -p /var/lib/nginx/cache
-$ sudo chown www-data /var/lib/nginx/cache
-$ sudo chmod 700 /var/lib/nginx/cache
-```
+    ```console
+    sudo cp /var/www/servembtiles/repo/servembtiles-uwsgi.conf /etc/init
+    ```
+
+7. Copy Map Data (or configure settings.py to a location which the nginx user can access)
+
+    ```console
+    $ mkdir /var/www/servembtiles/servembtiles/mapdata
+    $ cp [MAPDATA.mbtiles] /var/www/servembtiles/repo/mapdata
+    ```
+
+
+8. Restart nginx & start application uwsgi
+
+    ```console
+    sudo service servembtiles-uwsgi start
+    sudo service nginx restart
+    ```
+
+    > Note: Related log files are located in "/var/log/nginx" & "/var/log/uwsgi/servembtiles-uwsgi.log"
+    > Application configured to be served at SERVER_IP_ADDRESS:8005
+    > *Port configured in servembtiles_nginx.conf file*

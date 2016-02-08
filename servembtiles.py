@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 try:
-    from settings import MBTILES_ABSPATH, MBTILES_TILE_EXT
+    from settings import MBTILES_ABSPATH, MBTILES_TILE_EXT, USE_OSGEO_TMS_TILE_ADDRESSING
 except ImportError:
     logger.warn("settings.py not set, can't be run via apache!")
     MBTILES_ABSPATH = None
@@ -133,9 +133,13 @@ class MBTilesApplication:
                     status = "400 Bad Request"
                     response_headers = [('Content-type', 'text/plain; charset=utf-8')]
                     start_response(status, response_headers)
-                    return ['Unable to parse PATH_INFO({}), expecting "z/x/y.(png|jpg)"'.format(environ['PATH_INFO']).encode('utf8'), ','.join(i for i in e.args).encode('utf8')]
+                    return ['Unable to parse PATH_INFO({}), expecting "z/x/y.(png|jpg)"'.format(environ['PATH_INFO']).encode('utf8'), ' '.join(i for i in e.args).encode('utf8')]
 
                 query = 'SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=?;'
+                if not USE_OSGEO_TMS_TILE_ADDRESSING:
+                    # adjust y to use XYZ google addressing
+                    ymax = 1 << zoom
+                    y = ymax - y - 1
                 values = (zoom, x, y)
                 with sqlite3.connect(self.mbtiles_filepath) as connection:
                     cursor = connection.cursor()

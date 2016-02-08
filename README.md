@@ -81,13 +81,13 @@ This section describes the initial application installation method on ubuntu 14.
     ```
 
 
-5. To allow the socket to be created, chmod on servembtiles/repo directory:
+5. To allow the socket (for uwsgi<->nginx comunication) to be created, chmod on servembtiles/repo directory:
 
     ```console
     sudo chmod 777 /var/www/servembtiles/repo
     ```
 
-6. Copy upstart configuration file, *servembtiles-uwsgi.conf* to /etc/init
+6. Copy upstart configuration file, *servembtiles-uwsgi.conf* to /etc/init to run application as a service:
 
     ```console
     sudo cp /var/www/servembtiles/repo/servembtiles-uwsgi.conf /etc/init
@@ -101,7 +101,7 @@ This section describes the initial application installation method on ubuntu 14.
     ```
 
 
-8. Restart nginx & start application uwsgi
+8. Start uwsgi application & Restart nginx
 
     ```console
     sudo service servembtiles-uwsgi start

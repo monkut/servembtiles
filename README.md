@@ -8,7 +8,7 @@ The application's tile image file extension can also be set via the 'settings.py
 
 By default requests are expected to follow the TMS addressing scheme. (For example, '/z/x/y.png')
 See (http://www.maptiler.org/google-maps-coordinates-tile-bounds-projection/) for details.
-THE Google maps XYZ scheme is supported by setting the *USE_OSGEO_TMS_TILE_ADDRESSING* value to *False* in the 'settings.py' file.
+The Google maps XYZ scheme is supported by setting the *USE_OSGEO_TMS_TILE_ADDRESSING* value to *False* in the 'settings.py' file.
 
 In addition, the `/metadata/` URL is available to view the .mbtiles file's metadata table in `json` format.
 (And if the included sample configurations and `index.html` are used, `/index.html` provides a test map to confirm that your tiles are being served from the defined `.mbtiles` file)

@@ -75,7 +75,6 @@ This section describes the initial application installation method on ubuntu 14.
 4. Symlink the 'servembtiles_nginx.conf' to */etc/nginx/sites-enabled/*
 
     ```console
-    $ sudo ln -s /var/www/servembtiles/repo/conf/servembtiles_cache.conf /etc/nginx/sites-enabled/
     $ sudo ln -s /var/www/servembtiles/repo/conf/servembtiles_nginx.conf /etc/nginx/sites-enabled/
     $ sudo ln -s /var/www/servembtiles/repo/conf/servembtiles_cache_nginx.conf /etc/nginx/sites-enabled/
     ```

@@ -41,7 +41,7 @@ class InvalidImageExtension(Exception):
 
 class MBTilesApplication:
     """
-    Serves rendered tiles within the given .mbtiles (sqlite3) file.
+    Serves rendered tiles within the given .mbtiles (sqlite3) file defined in settings.MBTILES_ABSPATH
 
     Refer to the MBTiles specification at:
     https://github.com/mapbox/mbtiles-spec
@@ -79,7 +79,8 @@ class MBTilesApplication:
 
     def _populate_supported_zoom_levels(self):
         """
-        Query the metadata table and obtain max/min zoom levels
+        Query the metadata table and obtain max/min zoom levels,
+        setting to self.minzoom, self.maxzoom as integers
         :return: None
         """
         query = 'SELECT name, value FROM metadata WHERE name="minzoom" OR name="maxzoom";'

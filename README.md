@@ -99,8 +99,16 @@ This section describes the initial application installation method on ubuntu 14.
     $ cp [MAPDATA.mbtiles] /var/www/servembtiles/repo/mapdata
     ```
 
+8. Update host addres in *index.html*
 
-8. Start uwsgi application & Restart nginx
+   ```
+   # Update only if you plan to use index.html included
+   ...
+   'http://localhost:8005/{z}/{x}/{y}.png', {  // <-- localhost must be changed to browser accessible host
+   ...
+   ```
+
+9. Start uwsgi application & Restart nginx
 
     ```console
     sudo service servembtiles-uwsgi start
@@ -110,3 +118,5 @@ This section describes the initial application installation method on ubuntu 14.
     > Note: Related log files are located in "/var/log/nginx" & "/var/log/uwsgi/servembtiles-uwsgi.log"
     > Application configured to be served at SERVER_IP_ADDRESS:8005
     > *Port configured in servembtiles_nginx.conf file*
+    
+    

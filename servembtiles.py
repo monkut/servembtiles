@@ -20,9 +20,10 @@ logger.setLevel(logging.WARNING)
 try:
     from settings import MBTILES_ABSPATH, MBTILES_TILE_EXT, USE_OSGEO_TMS_TILE_ADDRESSING
 except ImportError:
-    logger.warn("settings.py not set, can't be run via apache!")
+    logger.warn("settings.py not set, may not be able to run via a web server (apache, nginx, etc)!")
     MBTILES_ABSPATH = None
     MBTILES_TILE_EXT = '.png'
+    USE_OSGEO_TMS_TILE_ADDRESSING = True
 
 SUPPORTED_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg")
 

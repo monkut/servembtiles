@@ -65,20 +65,7 @@ class MBTilesApplication:
         self.maxzoom = None
         self.minzoom = None
 
-        self._check_mbtiles_version()
         self._populate_supported_zoom_levels()
-
-
-    def _check_mbtiles_version(self):
-        """
-        Check metadata table for version
-        :return: None
-        """
-        version_query = 'SELECT value from metadata WHERE name = "version";'
-        version_result = self.mbtiles_db.execute(version_query).fetchone()[0]
-        major, minor, point = [int(i) for i in version_result.split('.')]
-        if not (major == 1 and minor <= 2):
-            raise UnsupportedMBTilesVersion("Unknown MBTiles version({}) (if 'tiles' and 'metadata' tables are unchnaged update this to support the new version. 'grids' not supported!)".format(version_result))
 
     def _populate_supported_zoom_levels(self):
         """

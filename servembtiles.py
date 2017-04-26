@@ -18,12 +18,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 try:
-    from settings import MBTILES_ABSPATH, MBTILES_TILE_EXT, MBTILES_ZOOM_OFFSET, USE_OSGEO_TMS_TILE_ADDRESSING
+    from settings import MBTILES_ABSPATH, MBTILES_TILE_EXT, MBTILES_ZOOM_OFFSET, MBTILES_ADDRESS, MBTILES_PORT, MBTILES_SERVE, USE_OSGEO_TMS_TILE_ADDRESSING
 except ImportError:
     logger.warn("settings.py not set, may not be able to run via a web server (apache, nginx, etc)!")
     MBTILES_ABSPATH = None
     MBTILES_TILE_EXT = '.png'
     MBTILES_ZOOM_OFFSET = 0
+    MBTILES_ADDRESS = 'localhost'
+    MBTILES_PORT = 8005
+    MBTILES_SERVE = False
     USE_OSGEO_TMS_TILE_ADDRESSING = True
 
 SUPPORTED_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg")
@@ -151,19 +154,18 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--serve",
-                        default=False,
+                        default=MBTILES_SERVE,
                         action='store_true',
-                        help="Start test server")
+                        help="Start test server[DEFAULT={}]\n(Defaults to enviornment variable, 'MBTILES_SERVE')".format(MBTILES_SERVE))
     parser.add_argument('-p', '--port',
-                        default=8005,
+                        default=MBTILES_PORT,
                         type=int,
-                        help="Test server port [DEFAULT=8005]")
+                        help="Test server port [DEFAULT={}]\n(Defaults to enviornment variable, 'MBTILES_PORT')".format(MBTILES_PORT))
     parser.add_argument('-a', '--address',
-                        default='localhost',
-                        help='Test address to serve on [DEFAULT="localhost"]')
+                        default=MBTILES_ADDRESS,
+                        help="Test address to serve on [DEFAULT=\"{}\"]\n(Defaults to enviornment variable, 'MBTILES_ADDRESS')".format(MBTILES_ADDRESS))
     parser.add_argument('-f', '--filepath',
                         default=MBTILES_ABSPATH,
-                        required=True,
                         help="mbtiles filepath [DEFAULT={}]\n(Defaults to enviornment variable, 'MBTILES_ABSFILEPATH')".format(MBTILES_ABSPATH))
     parser.add_argument('-e', '--ext',
                         default=MBTILES_TILE_EXT,

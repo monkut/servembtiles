@@ -36,10 +36,6 @@ class MBTilesFileNotFound(Exception):
     pass
 
 
-class UnsupportedMBTilesVersion(Exception):
-    pass
-
-
 class InvalidImageExtension(Exception):
     pass
 

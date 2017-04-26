@@ -90,7 +90,7 @@ class MBTilesApplication:
                     status = '200 OK'
                     response_headers = [('Content-type', 'application/json')]
                     start_response(status, response_headers)
-                    json_result = json.dumps(metadata_results)
+                    json_result = json.dumps(metadata_results, ensure_ascii=False)
                     return [json_result.encode("utf8"),]
                 else:
                     status = '404 NOT FOUND'

@@ -172,7 +172,7 @@ if __name__ == '__main__':
     parser.add_argument("--serve",
                         default=False,
                         action='store_true',
-                        help="Start tset server")
+                        help="Start test server")
     parser.add_argument('-p', '--port',
                         default=8005,
                         type=int,

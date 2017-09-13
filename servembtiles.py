@@ -18,11 +18,12 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 try:
-    from settings import MBTILES_ABSPATH, MBTILES_TILE_EXT, USE_OSGEO_TMS_TILE_ADDRESSING
+    from settings import MBTILES_ABSPATH, MBTILES_TILE_EXT, MBTILES_ZOOM_OFFSET, USE_OSGEO_TMS_TILE_ADDRESSING
 except ImportError:
     logger.warn("settings.py not set, may not be able to run via a web server (apache, nginx, etc)!")
     MBTILES_ABSPATH = None
     MBTILES_TILE_EXT = '.png'
+    MBTILES_ZOOM_OFFSET = 0
     USE_OSGEO_TMS_TILE_ADDRESSING = True
 
 SUPPORTED_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg")
@@ -48,7 +49,7 @@ class MBTilesApplication:
     https://github.com/mapbox/mbtiles-spec
     """
 
-    def __init__(self, mbtiles_filepath, tile_image_ext='.png'):
+    def __init__(self, mbtiles_filepath, tile_image_ext='.png', zoom_offset=0):
         if mbtiles_filepath is None or not os.path.exists(mbtiles_filepath):
             raise MBTilesFileNotFound(mbtiles_filepath)
 
@@ -58,6 +59,7 @@ class MBTilesApplication:
         self.mbtiles_filepath = mbtiles_filepath
         self.tile_image_ext = tile_image_ext
         self.tile_content_type = mimetypes.types_map[tile_image_ext.lower()]
+        self.zoom_offset = zoom_offset
         self.maxzoom = None
         self.minzoom = None
 
@@ -90,7 +92,7 @@ class MBTilesApplication:
             cursor.execute(query)
         # add maxzoom, minzoom to instance
         for name, value in cursor.fetchall():
-            setattr(self, name.lower(), int(value))
+            setattr(self, name.lower(), max(int(value) - self.zoom_offset, 0))
 
     def __call__(self, environ, start_response):
         if environ['REQUEST_METHOD'] == 'GET':
@@ -120,7 +122,7 @@ class MBTilesApplication:
             elif uri_field_count >= 3:  # expect:  zoom, x & y
                 try:
                     zoom = int(base_uri)
-                    if all((self.minzoom, self.maxzoom)) and not (self.minzoom <= zoom <= self.maxzoom):
+                    if None not in (self.minzoom, self.maxzoom) and not (self.minzoom <= zoom <= self.maxzoom):
                         status = "404 Not Found"
                         response_headers = [('Content-type', 'text/plain; charset=utf-8')]
                         start_response(status, response_headers)
@@ -128,6 +130,7 @@ class MBTilesApplication:
                                                                                                                                    self.minzoom,
                                                                                                                                    self.maxzoom,
                                                                                                                                    environ['PATH_INFO']).encode('utf8')]
+                    zoom += self.zoom_offset
                     x = int(shift_path_info(environ))
                     y, ext = shift_path_info(environ).split('.')
                     y = int(y)
@@ -187,6 +190,10 @@ if __name__ == '__main__':
     parser.add_argument('-e', '--ext',
                         default=MBTILES_TILE_EXT,
                         help="mbtiles image file extention [DEFAULT={}]\n(Defaults to enviornment variable, 'MBTILES_TILE_EXT')".format(MBTILES_TILE_EXT))
+    parser.add_argument('-z', '--zoom-offset',
+                        default=MBTILES_ZOOM_OFFSET,
+                        type=int,
+                        help="mbtiles zoom offset [DEFAULT={}]\n(Defaults to enviornment variable, 'MBTILES_ZOOM_OFFSET')".format(MBTILES_ZOOM_OFFSET))
     args = parser.parse_args()
     args.filepath = os.path.abspath(args.filepath)
     if args.serve:
@@ -203,7 +210,7 @@ if __name__ == '__main__':
         logger.info("ADDRESS : {}".format(args.address))
         logger.info("PORT    : {}".format(args.port))
         from wsgiref.simple_server import make_server
-        mbtiles_app = MBTilesApplication(mbtiles_filepath=args.filepath, tile_image_ext=args.ext)
+        mbtiles_app = MBTilesApplication(mbtiles_filepath=args.filepath, tile_image_ext=args.ext, zoom_offset=args.zoom_offset)
         server = make_server(args.address, args.port, mbtiles_app)
         try:
             server.serve_forever()
@@ -213,4 +220,4 @@ if __name__ == '__main__':
         logger.warn("'--serve' option not given!")
         logger.warn("\tRun with the '--serve' option to serve tiles with the test server.")
 else:
-    application = MBTilesApplication(mbtiles_filepath=MBTILES_ABSPATH, tile_image_ext=MBTILES_TILE_EXT)
+    application = MBTilesApplication(mbtiles_filepath=MBTILES_ABSPATH, tile_image_ext=MBTILES_TILE_EXT, zoom_offset=MBTILES_ZOOM_OFFSET)

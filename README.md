@@ -42,6 +42,8 @@ The 'settings.py' file contains the following values:
 
     * MBTILES_TILE_EXT - The image extension to use (".png", ".jpg", ".jpeg")
 
+    * MBTILES_ZOOM_OFFSET - Apply a integer zoom offset, default '0'
+
     * USE_OSGEO_TMS_TILE_ADDRESSING - True (default) set to False to use Google XYZ addressing.
 
 ## Installation

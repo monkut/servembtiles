@@ -18,13 +18,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
 try:
-    from settings import MBTILES_ABSPATH, MBTILES_TILE_EXT, MBTILES_ZOOM_OFFSET, MBTILES_ADDRESS, MBTILES_PORT, MBTILES_SERVE, USE_OSGEO_TMS_TILE_ADDRESSING
+    from settings import MBTILES_ABSPATH, MBTILES_TILE_EXT, MBTILES_ZOOM_OFFSET, MBTILES_HOST, MBTILES_PORT, MBTILES_SERVE, USE_OSGEO_TMS_TILE_ADDRESSING
 except ImportError:
     logger.warn("settings.py not set, may not be able to run via a web server (apache, nginx, etc)!")
     MBTILES_ABSPATH = None
     MBTILES_TILE_EXT = '.png'
     MBTILES_ZOOM_OFFSET = 0
-    MBTILES_ADDRESS = 'localhost'
+    MBTILES_HOST = 'localhost'
     MBTILES_PORT = 8005
     MBTILES_SERVE = False
     USE_OSGEO_TMS_TILE_ADDRESSING = True
@@ -158,8 +158,8 @@ if __name__ == '__main__':
                         type=int,
                         help="Test server port [DEFAULT={}]\n(Defaults to enviornment variable, 'MBTILES_PORT')".format(MBTILES_PORT))
     parser.add_argument('-a', '--address',
-                        default=MBTILES_ADDRESS,
-                        help="Test address to serve on [DEFAULT=\"{}\"]\n(Defaults to enviornment variable, 'MBTILES_ADDRESS')".format(MBTILES_ADDRESS))
+                        default=MBTILES_HOST,
+                        help="Test address to serve on [DEFAULT=\"{}\"]\n(Defaults to enviornment variable, 'MBTILES_HOST')".format(MBTILES_HOST))
     parser.add_argument('-f', '--filepath',
                         default=MBTILES_ABSPATH,
                         help="mbtiles filepath [DEFAULT={}]\n(Defaults to enviornment variable, 'MBTILES_ABSFILEPATH')".format(MBTILES_ABSPATH))

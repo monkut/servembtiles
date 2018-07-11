@@ -3,8 +3,8 @@
 `servembtiles.py` is a pure python3 wsgi application for serving [MBTiles](https://github.com/mapbox/mbtiles-spec).
 MBTiles can be exported from [Tilemill](https://www.mapbox.com/tilemill/).  (*If you do web-maps go checkout tilemill*)
 
-The application's MBTiles filepath can be defined in the 'settings.py' variable, "MBTILES_ABSPATH".
-The application's tile image file extension can also be set via the 'settings.py' variable, "MBTILES_TILE_EXT".
+The application's MBTiles filepath can be defined in the 'settings.py' variable, *MBTILES_ABSPATH*.
+The application's tile image file extension can also be set via the 'settings.py' variable, *MBTILES_TILE_EXT*.
 
 By default requests are expected to follow the TMS addressing scheme. (For example, '/z/x/y.png')
 See (http://www.maptiler.org/google-maps-coordinates-tile-bounds-projection/) for details.
